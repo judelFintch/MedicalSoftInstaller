@@ -26,10 +26,11 @@ MedicalSoftInstaller is a complete installation script for setting up the **Medi
 
 ---
 
-## Usage
+## Usage (Simple Linux Install)
 
-1. Clone the installer repository:
+Run the installer and follow the prompts. It will install dependencies, set up the database, clone the app, and configure Apache.
 
 ```bash
 git clone https://github.com/<username>/MedicalSoftInstaller.git
 cd MedicalSoftInstaller
+./install.sh
