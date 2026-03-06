@@ -1,5 +1,4 @@
 # MedicalSoftInstaller
-MedicalSoftInstaller is a complete installation script for setting up the **MedicalSoft**
 MedicalSoftInstaller is a complete installation script for setting up the **MedicalSoft** web application on a new server. It automates the installation of Apache, MySQL, PHP, and the Laravel project, and guides the user through configuration securely.
 
 ---
@@ -26,11 +25,91 @@ MedicalSoftInstaller is a complete installation script for setting up the **Medi
 
 ---
 
-## Usage (Simple Linux Install)
+## Usage (Step by Step)
 
-Run the installer and follow the prompts. It will install dependencies, set up the database, clone the app, and configure Apache.
+### 1) Connect to your Linux server
+Open a terminal and connect via SSH:
+
+```bash
+ssh user@your-server-ip
+```
+
+### 2) Download the installer
 
 ```bash
 git clone https://github.com/<username>/MedicalSoftInstaller.git
 cd MedicalSoftInstaller
+```
+
+### 3) Run the installer
+
+```bash
 ./install.sh
+```
+
+### 4) Answer the prompts
+The script asks for:
+
+- Installation path (default: `/var/www/medicalsoft`)
+- Git repository URL (default points to MedicalSoft)
+- GitHub token (hidden input; leave empty if repo is public)
+- Database name and user (defaults: `medicalsoft`)
+- Optional domain name (for HTTPS)
+- Optional email for Let's Encrypt (if a domain is provided)
+
+### 5) What the script does for you
+
+- Installs Apache, MySQL, PHP, Composer, and required PHP extensions
+- Creates the database and user
+- Clones the MedicalSoft app
+- Creates `.env` and generates the Laravel `APP_KEY`
+- Runs database migrations (best effort)
+- Configures Apache virtual host
+- Enables HTTPS if a domain is provided
+
+### 6) Final result
+At the end, the script prints:
+
+- The installation path
+- Database name and user
+- Database password
+- Access URL (`http://server-ip` or `https://your-domain`)
+
+### Reinstall behavior (safe)
+If the installation folder already exists, the script creates a backup instead of deleting it:
+
+```
+/var/www/medicalsoft.bak-YYYYmmdd-HHMMSS
+```
+
+---
+
+## Distribute a Single Executable (.run)
+
+For non-technical users, you can publish a single executable installer (`.run`) as a GitHub Release asset.
+
+### 1) Build the `.run` installer
+
+```bash
+./pack_installer.sh
+```
+
+This generates:
+```
+dist/medicalsoft-installer.run
+```
+
+### 2) Create a GitHub Release and upload the file
+
+```bash
+gh release create v1.0.0 dist/medicalsoft-installer.run -t "MedicalSoft Installer v1.0.0"
+```
+
+### 3) User download + install
+
+```bash
+chmod +x medicalsoft-installer.run
+./medicalsoft-installer.run
+```
+
+The `.run` file simply launches `install.sh` with the same prompts.
