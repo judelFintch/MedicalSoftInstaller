@@ -53,7 +53,9 @@ require_sudo
 
 prompt INSTALL_PATH "Installation path" "/var/www/medicalsoft"
 prompt REPO_URL "Git repository URL" "https://github.com/judelFintch/medicalsoft.git"
-prompt GIT_TOKEN "GitHub token (leave empty if repo is public)" ""
+GIT_TOKEN=""
+read -r -s -p "GitHub token (leave empty if repo is public): " GIT_TOKEN
+echo ""
 prompt DB_NAME "Database name" "medicalsoft"
 prompt DB_USER "Database user" "medicalsoft"
 DB_PASS="$(random_password)"
@@ -92,15 +94,25 @@ if [ -d "$INSTALL_PATH" ]; then
     echo "Installation aborted."
     exit 0
   fi
-  sudo rm -rf "$INSTALL_PATH"
+  BACKUP_PATH="${INSTALL_PATH}.bak-$(date +%Y%m%d-%H%M%S)"
+  echo "Creating backup at: $BACKUP_PATH"
+  sudo mv "$INSTALL_PATH" "$BACKUP_PATH"
 fi
 
 log "Cloning application"
-CLONE_URL="$REPO_URL"
 if [ -n "$GIT_TOKEN" ] && [[ "$REPO_URL" == https://* ]]; then
-  CLONE_URL="${REPO_URL/https:\/\//https:\/\/$GIT_TOKEN@}"
+  ASKPASS_FILE="$(mktemp)"
+  cat <<'ASKPASS' > "$ASKPASS_FILE"
+#!/usr/bin/env bash
+echo "$GIT_TOKEN"
+ASKPASS
+  chmod 700 "$ASKPASS_FILE"
+  # Use GIT_ASKPASS to avoid putting token in URL or history
+  sudo -E env GIT_ASKPASS="$ASKPASS_FILE" GIT_TERMINAL_PROMPT=0 git clone "$REPO_URL" "$INSTALL_PATH"
+  rm -f "$ASKPASS_FILE"
+else
+  sudo git clone "$REPO_URL" "$INSTALL_PATH"
 fi
-sudo git clone "$CLONE_URL" "$INSTALL_PATH"
 
 log "Installing application dependencies"
 sudo chown -R "$USER":"$USER" "$INSTALL_PATH"
