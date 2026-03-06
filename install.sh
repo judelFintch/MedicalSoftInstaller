@@ -83,9 +83,9 @@ if ! command -v composer >/dev/null 2>&1; then
 fi
 
 log "Preparing database"
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS \\`$DB_NAME\\`;"
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;"
 sudo mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON \\`$DB_NAME\\`.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
+sudo mysql -e "GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
 
 if [ -d "$INSTALL_PATH" ]; then
   echo "\n$INSTALL_PATH already exists."
