@@ -52,6 +52,9 @@ fi
 require_sudo
 
 prompt INSTALL_PATH "Installation path" "/var/www/medicalsoft"
+if command -v readlink >/dev/null 2>&1; then
+  INSTALL_PATH="$(readlink -f "$INSTALL_PATH" 2>/dev/null || echo "$INSTALL_PATH")"
+fi
 prompt REPO_URL "Git repository URL" "https://github.com/judelFintch/medicalsoft.git"
 GIT_TOKEN=""
 read -r -s -p "GitHub token (leave empty if repo is public): " GIT_TOKEN
@@ -148,7 +151,15 @@ sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/" .env
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/" .env
 
-php artisan key:generate --force
+php artisan key:generate --force || true
+
+# Ensure APP_KEY is set (artisan can fail silently in some environments)
+if ! grep -q "^APP_KEY=base64:" .env; then
+  APP_KEY_VALUE="$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")"
+  sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY_VALUE|" .env
+fi
+
+php artisan config:clear >/dev/null 2>&1 || true
 php artisan migrate --force || true
 
 sudo chown -R www-data:www-data "$INSTALL_PATH"
@@ -165,6 +176,7 @@ if [ -n "$DOMAIN" ]; then
   APP_URL="https://$DOMAIN"
 fi
 
+sudo rm -f "$VHOST"
 sudo bash -c "cat > $VHOST" <<'VHOSTCONF'
 <VirtualHost *:80>
     __SERVER_NAME__
