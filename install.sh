@@ -81,7 +81,7 @@ sudo apt install -y php php-mysql php-xml php-mbstring php-curl php-zip php-gd
 if ! command -v composer >/dev/null 2>&1; then
   log "Installing Composer"
   php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+  sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
   rm -f composer-setup.php
 fi
 
