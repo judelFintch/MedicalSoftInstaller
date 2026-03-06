@@ -123,6 +123,35 @@ sudo chown -R "$USER":"$USER" "$INSTALL_PATH"
 cd "$INSTALL_PATH"
 composer install --no-interaction --prefer-dist --no-dev
 
+# Create a systemd service for `composer dev`
+log "Configuring MedicalSoft dev service (composer dev)"
+COMPOSER_BIN="$(command -v composer || true)"
+RUN_USER="${SUDO_USER:-$USER}"
+RUN_HOME="$(getent passwd "$RUN_USER" | cut -d: -f6)"
+DEV_SERVICE="/etc/systemd/system/medicalsoft-dev.service"
+if [ -n "$COMPOSER_BIN" ]; then
+  sudo bash -c "cat > $DEV_SERVICE" <<SERVICE
+[Unit]
+Description=MedicalSoft Dev (composer dev)
+After=network.target
+
+[Service]
+Type=simple
+User=$RUN_USER
+WorkingDirectory=$INSTALL_PATH
+Environment=HOME=$RUN_HOME
+ExecStart=$COMPOSER_BIN dev
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now medicalsoft-dev
+else
+  echo "Composer not found; skipping dev service."
+fi
+
 if [ -f .env.example ]; then
   cp .env.example .env
 else
