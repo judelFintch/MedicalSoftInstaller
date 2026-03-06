@@ -34,6 +34,9 @@ Open a terminal and connect via SSH:
 ssh user@your-server-ip
 ```
 
+### Alternative (Local Server)
+If the server is local (same machine), you do not need SSH. Just open a terminal and continue from step 2.
+
 ### 2) Download the installer
 
 ```bash
