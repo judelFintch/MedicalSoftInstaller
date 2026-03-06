@@ -123,6 +123,7 @@ log "Installing application dependencies"
 sudo chown -R "$USER":"$USER" "$INSTALL_PATH"
 cd "$INSTALL_PATH"
 composer install --no-interaction --prefer-dist --no-dev
+composer update --no-interaction --prefer-dist
 
 # Create a systemd service for `composer dev`
 log "Configuring MedicalSoft dev service (composer dev)"
