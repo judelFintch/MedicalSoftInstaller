@@ -77,6 +77,7 @@ log "Installing system packages"
 sudo apt update
 sudo apt install -y apache2 mysql-server git curl unzip openssl
 sudo apt install -y php php-mysql php-xml php-mbstring php-curl php-zip php-gd
+sudo systemctl enable --now apache2
 
 if ! command -v composer >/dev/null 2>&1; then
   log "Installing Composer"
@@ -196,6 +197,7 @@ sudo sed -i "s|__INSTALL_PATH__|$INSTALL_PATH|" "$VHOST"
 sudo a2ensite medicalsoft.conf
 sudo a2dissite 000-default.conf >/dev/null 2>&1 || true
 sudo systemctl reload apache2
+sudo systemctl enable apache2 >/dev/null 2>&1 || true
 
 sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" .env
 
